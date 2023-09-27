@@ -50,23 +50,25 @@ fat(X,R) :-
     fat(X1, Rp),
     R is X * Rp.
 
-sum(J,J,J).
 sum(J,K,R) :-
-    K < J, sum(K, J, R);
-    write(J ),
-    write(K ),
+    J > K, sum(K, J, R).
+sum(J,K,R) :-
+    J =:= K, R is J.
+sum(J,K,R) :-
+    J < K,
     J1 is J + 1,
     sum(J1, K, Rp),
     R is J + Rp.
+
 
 divNoRecursive(A, B, Q, R) :-
     Q is A // B,
     R is A mod B.
 
-divRecursive(A, A, 1, 0).
-divRecursive(A, B, Q, R) :- 
-    B > A, R is A;
+divRecursive(A, B, 0, A) :- A < B, !.
+divRecursive(A, B, Q, R) :-
     A1 is A - B,
-    Q1 is Q + 1,
-    divRecursive(A1, B, Q1, R).
+    divRecursive(A1,B,Q1,R),
+    Q is Q1 + 1.
+
 
