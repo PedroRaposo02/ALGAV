@@ -22,10 +22,10 @@ mediaListaAux([H|T], TO, C) :-
 
 
 /* b) Obter o menor valor de uma lista de inteiros */
-menorValorLista([], 0).
-menorValorLista([X], X).
-menorValorLista([X|T], M) :-
-    menorValorLista(T, M1),
+menor([], 0).
+menor([X], X).
+menor([X|T], M) :-
+    menor(T, M1),
     (
         X < M1 -> M is X
         ;
@@ -53,11 +53,40 @@ isPar(X) :-
 
 /* d) Colocar o menor elemento da lista à frente da lista */
 colocarMenorNaFrente(List, Result) :-
-    menorValorLista(List, M),
+    menor(List, M),
     select(M, List, Rest),
     Result = [M|Rest].
 
 
+/*
+    2.
+        Teste o predicado de concatenação de duas listas dado nas aulas TP com
+    várias alternativas de funcionamento (listas dos 2 primeiros argumentos
+    instanciadas e lista do terceiro argumento não instanciada; listas dos 2
+    primeiros argumentos não instanciadas e lista do terceiro argumento
+    instanciada; etc). 
+*/
+
+concatena([ ],L,L).
+concatena([A|B],C,[A|D]):-concatena(B,C,D).
+
+/* Clausula de teste: 
+    concatena([a,b],[c,d,e],L).
+    L = [a,b,c,d,e]
+
+    concatena(L1,L2,[a,b,c]).
+    L1 = [] ,
+    L2 = [a,b,c] ; 
+
+    L1 = [a] ,
+    L2 = [b,c] ;
+    
+    L1 = [a,b] ,
+    L2 = [c] ;
+    
+    L1 = [a,b,c] ,
+    L2 = [] ;
+*/
 
 /*
     3. 
@@ -74,6 +103,33 @@ inverte1([X|L],L2,L3):-
     L = [1,2,3,4,5]
 */
 
+/*
+    4.
+         Teste o predicado que apaga a ocorrência de um dado elemento numa
+    lista dado na aula TP (eliminar todas as ocorrências; eliminar só a
+    primeira ocorrência; eliminar só a última ocorrência). 
+
+*/
+
+apaga(_,[ ],[ ]).
+apaga(X,[X|L],M):-!,apaga(X,L,M).
+apaga(X,[Y|L],[Y|M]):-apaga(X,L,M).
+
+/*
+    Clausula de teste:
+        apaga(1,[1,2,1,3,1,4],L).
+        L = [2,3,4] ;
+        L = [2,3,1,4] ;
+        L = [2,1,3,4] ;
+        L = [2,1,3,1,4] ;
+        L = [1,2,3,4] ;
+        L = [1,2,3,1,4] ;
+        L = [1,2,1,3,4] ;
+        L = [1,2,1,3,1,4] ;
+        false
+
+    Caso nao tenha o !, caso tenho apenas retorna a solucao L = [2, 3, 4];
+*/
 
 /*
     5. 
@@ -81,17 +137,49 @@ inverte1([X|L],L2,L3):-
         elemento numa lista por outro elemento.
 */
 
-substitui(A,B, List, L) :-
+substitui(A, B, List, L) :-
     substituiAux(A, B, List, [], L1),
     inverte(L, L1).
 
 substituiAux(_, _, [], L, L).
-substituiAux(A, B, [A|T], L, R) :-
-    substituiAux(A, B, T, [B|L], R).
 substituiAux(A, B, [H|T], L, R) :-
-    A \= H,
-    substituiAux(A, B, T, [H|L], R).
+    (
+        A = H -> substituiAux(A, B, T, [B|L], R)
+        ;
+        substituiAux(A, B, T, [H|L], R)
+    ).
 
+/* Clausula de teste:
+    substitui(1, 2, [1,2,3,4,5,1,2,3,4,5], L).
+    L = [2,2,3,4,5,2,2,3,4,5]
+*/
+
+/*
+    6. 
+        Escreva um predicado que insira uma dado elemento numa posição de
+    uma lista
+
+*/
+
+insere(X, 0, T, H, R):-
+    T1 = [X|T],
+    inverte(H, H1),
+    concatena(H1, T1, R).
+insere(X, P, [Y|T], H, R) :-
+    P1 is P - 1,
+    insere(X, P1, T, [Y|H], R).
+
+insere(X, _, [], [X]).    
+insere(X, 0, L, [X|L]).  
+insere(X, P, L, R):- insere(X, P, L, [], R).   
+
+
+/*
+    Clausula de teste:
+    insere(x,3,[a,b,a,c,a,d],L).
+    L=[a,b,x,a,c,a,d]
+    true 
+*/
 
 /*
     7. 
@@ -113,6 +201,21 @@ uniao([X|L1],L2,[X|LU]):-
     L = [2,4,1,3,5,7]
 */
 
+/*
+    8. 
+        Teste o predicado de interseção de dois conjuntos representados por
+    listas dado na aula TP
+*/
+
+intersecao([ ],_,[ ]).
+intersecao([X|L1],L2,[X|LI]):-member(X,L2),!,intersecao(L1,L2,LI).
+intersecao([_|L1],L2, LI):- intersecao(L1,L2,LI).
+
+/*
+    Clausula de teste:
+        intersecao([1,2,3,4],[1,3,5,7],L).
+        L = [1,3]
+*/
 
 
 /*
@@ -125,8 +228,7 @@ uniao([X|L1],L2,[X|LU]):-
 pertenceApenasUm(List1, List2, Result) :-
     pertenceApenasUmAux(List1, List2, Result1),
     pertenceApenasUmAux(List2, List1, Result2),
-    uniao(Result1, Result2, Union),
-    append(Union, [], Result).
+    uniao(Result1, Result2, Result).
 
 pertenceApenasUmAux([], _, []).
 pertenceApenasUmAux([X|T], List, Result) :-
@@ -142,6 +244,26 @@ pertenceApenasUmAux([X|T], List, Result) :-
 /* Clausula de teste:
     pertenceApenasUm([1,2,3,4],[1,3,5,7],L).
     L = [2,4,5,7]
+*/
+
+/*
+    10.
+        Implemente um predicado que linearize uma lista, ou seja, numa lista
+    cujos elementos podem ser atómicos ou outras listas devolver a lista com 
+    tods os átomos da lista original.
+*/
+
+flatten([],[]).
+flatten(X,[X]).
+flatten([X|L],LF):- 
+    flatten(X,L1),
+    flatten(L,L2),
+    append(L1,L2,LF).
+
+/*
+    Clausula de teste:
+        flatten([[a,b,c],[d,[e,f],g],h],L).
+        L = [a,b,c,d,e,f,g,h] 
 */
 
 /*
@@ -170,4 +292,22 @@ combinacao(N, [_|T], Comb) :-
     L=[a,b,c,d,f,h];
     …
     L=[c,d,e,f,g,h]
+*/
+
+/*
+    12.
+        Implemente um predicado que obtenha uma permutação de uma lista.
+    Verifique que esse predicado tenha a capacidade de obter todas as
+    permutações de elementos da lista.
+*/
+
+/*
+    Clausula de teste:
+        permutacao([a,b,c,d,e],L).
+        L=[a,b,c,d,e];
+        L=[a,b,c,e,d];
+        L=[a,b,d,c,e];
+        L=[a,b,d,e,c];
+        …
+        L=[e,d,c,b,a] 
 */
