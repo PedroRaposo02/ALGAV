@@ -301,6 +301,16 @@ combinacao(N, [_|T], Comb) :-
     permutações de elementos da lista.
 */
 
+permutacao([], []).
+permutacao([H|Perm], List) :-
+    select(H, List, Rest),
+    permutacao(Perm, Rest).
+
+/*
+    Quantas permutaçãoes sao possiveis?
+        Reposta: n! 
+*/
+
 /*
     Clausula de teste:
         permutacao([a,b,c,d,e],L).
