@@ -301,10 +301,11 @@ combinacao(N, [_|T], Comb) :-
     permutações de elementos da lista.
 */
 
-permutacao([], []).
-permutacao([H|Perm], List) :-
-    select(H, List, Rest),
-    permutacao(Perm, Rest).
+permutacao([ ],[ ]).
+permutacao(L,[X|P]) :-
+    select(X,L,R),
+    permutacao(R,P).
+
 
 /*
     Quantas permutaçãoes sao possiveis?
